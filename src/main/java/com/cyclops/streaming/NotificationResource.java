@@ -31,7 +31,7 @@ public class NotificationResource {
     }
 
     @GET
-    @Suspend(resumeOnBroadcast = true)
+    @Suspend(resumeOnBroadcast = true, contentType = MediaType.APPLICATION_JSON)
     public SuspendResponse<Event> subscribe(@PathParam("topic") Broadcaster topic) {
         //final Broadcaster topic = BroadcasterFactory.getDefault().lookup("/" + topicName, true);
         return new SuspendResponse.SuspendResponseBuilder<Event>()

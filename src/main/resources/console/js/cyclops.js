@@ -1,9 +1,8 @@
-
 var socket = $.atmosphere;
 var request = { url: 'http://localhost:9030/cyclops/notify/test',
                      contentType : "application/json",
                      logLevel : 'debug',
-                     transport : 'websocket',
+                     transport : 'sse',
                      fallbackTransport: 'long-polling'};
 
 request.onOpen = function(response) {
@@ -29,3 +28,8 @@ request.onError = function(response) {
 }
 
 var subSocket = socket.subscribe(request);
+/*var socket = io.connect('http://localhost:9030/cyclops/notify/');
+  socket.on('test', function (data) {
+    console.log(data);
+    //socket.emit('my other event', { my: 'data' });
+  });*/

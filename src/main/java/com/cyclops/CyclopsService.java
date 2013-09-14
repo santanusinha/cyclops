@@ -49,6 +49,7 @@ public class CyclopsService extends Service<CyclopsConfiguration> {
         AtmosphereServlet atmosphereServlet = new AtmosphereServlet();
         atmosphereServlet.framework().addInitParameter("com.sun.jersey.config.property.packages", "com.cyclops.streaming");
         atmosphereServlet.framework().addInitParameter("org.atmosphere.websocket.messageContentType", "application/json");
+        //atmosphereServlet.framework().addInitParameter("org.atmosphere.useWebSocketAndServlet3", "false");
         //atmosphereServlet.framework().addInitParameter("org.atmosphere.cpr.broadcastFilterClasses", "com.example.helloworld.filters.BadWordFilter");
         environment.addServlet(atmosphereServlet, "/cyclops/notify/*");
     }

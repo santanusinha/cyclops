@@ -35,6 +35,7 @@ public class WebSocketListener extends WebSocketEventListenerAdapter {
         super.onSuspend(event);
         ITopic<Event> distTopic = hazelcastInstance.getTopic(topic.getID());
         listenerId = distTopic.addMessageListener(new TopicListener(topic, executorService));
+        logger.info("Subscribed");
     }
 
     @Override
@@ -48,5 +49,6 @@ public class WebSocketListener extends WebSocketEventListenerAdapter {
         super.onDisconnect(event);
         ITopic<Event> distTopic = hazelcastInstance.getTopic(topic.getID());
         distTopic.removeMessageListener(listenerId);
+        logger.info("UnSubscribed");
     }
 }
