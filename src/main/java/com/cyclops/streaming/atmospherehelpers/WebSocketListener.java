@@ -10,6 +10,7 @@ import org.atmosphere.websocket.WebSocketEventListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -21,21 +22,26 @@ public class WebSocketListener extends WebSocketEventListenerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketListener.class.getSimpleName());
     private HazelcastInstance hazelcastInstance;
     private ExecutorService executorService;
+    private ConcurrentHashMap<Broadcaster, WebSocketListener> listenerSockets;
     private Broadcaster topic;
     private String listenerId;
 
-    public WebSocketListener(HazelcastInstance hazelcastInstance, ExecutorService executorService, Broadcaster topic) {
+    public WebSocketListener(HazelcastInstance hazelcastInstance, ExecutorService executorService, Broadcaster topic,
+                             ConcurrentHashMap<Broadcaster, WebSocketListener> listenerSockets) {
         this.hazelcastInstance = hazelcastInstance;
         this.executorService = executorService;
         this.topic = topic;
+        this.listenerSockets = listenerSockets;
     }
 
     @Override
     public void onSuspend(AtmosphereResourceEvent event) {
         super.onSuspend(event);
-        ITopic<Event> distTopic = hazelcastInstance.getTopic(topic.getID());
-        listenerId = distTopic.addMessageListener(new TopicListener(topic, executorService));
-        logger.info("Subscribed");
+        if(null == listenerId) {
+            ITopic<Event> distTopic = hazelcastInstance.getTopic(topic.getID());
+            listenerId = distTopic.addMessageListener(new TopicListener(topic, executorService));
+            logger.info("Subscribed");
+        }
     }
 
     @Override
@@ -45,10 +51,12 @@ public class WebSocketListener extends WebSocketEventListenerAdapter {
     }
 
     @Override
-    public void onDisconnect(WebSocketEvent event) {
+    public void onDisconnect(AtmosphereResourceEvent event) {
         super.onDisconnect(event);
         ITopic<Event> distTopic = hazelcastInstance.getTopic(topic.getID());
         distTopic.removeMessageListener(listenerId);
-        logger.info("UnSubscribed");
+        if(listenerSockets.remove(topic, this)) {
+            logger.info("UnSubscribed");
+        }
     }
 }

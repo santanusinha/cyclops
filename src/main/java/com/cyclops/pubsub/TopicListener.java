@@ -29,9 +29,9 @@ public class TopicListener implements MessageListener<Event> {
 
     @Override
     public void onMessage(final Message<Event> message) {
-        /*executorService.execute(new Runnable() {
+        executorService.execute(new Runnable() {
             @Override
-            public void run() {*/
+            public void run() {
                 try {
                     Future<Object> finish = topicBroadcaster.broadcast(message.getMessageObject());
                     finish.get();
@@ -41,7 +41,7 @@ public class TopicListener implements MessageListener<Event> {
                 } catch (ExecutionException e) {
                     logger.error("Error during broadcasting: ", e.getCause());
                 }
-        //    }
-        //});
+            }
+        });
     }
 }

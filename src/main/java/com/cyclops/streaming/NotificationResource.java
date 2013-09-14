@@ -24,21 +24,22 @@ import javax.ws.rs.core.MediaType;
 public class NotificationResource {
     private static final Logger logger = LoggerFactory.getLogger(NotificationResource.class.getSimpleName());
 
-
-    //@PathParam("topic") String topicName;
-
     public NotificationResource() {
+        logger.info("HERE");
     }
 
     @GET
     @Suspend(resumeOnBroadcast = true, contentType = MediaType.APPLICATION_JSON)
     public SuspendResponse<Event> subscribe(@PathParam("topic") Broadcaster topic) {
         //final Broadcaster topic = BroadcasterFactory.getDefault().lookup("/" + topicName, true);
+        WebSocketListener listener = AtmosphereUtil.getSocketLister(topic);
+        if(null == listener) {
+        logger.error("MF is null :(");
+        }
         return new SuspendResponse.SuspendResponseBuilder<Event>()
                     .broadcaster(topic)
                     .outputComments(true)
-                    .addListener(new WebSocketListener(AtmosphereUtil.getHazelcastSelector().get(),
-                            AtmosphereUtil.getExecutorService(), topic))
+                    .addListener(listener)
                     .build();
     }
 

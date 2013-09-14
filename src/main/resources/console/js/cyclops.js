@@ -2,8 +2,7 @@ var socket = $.atmosphere;
 var request = { url: 'http://localhost:9030/cyclops/notify/test',
                      contentType : "application/json",
                      logLevel : 'debug',
-                     transport : 'sse',
-                     fallbackTransport: 'long-polling'};
+                     transport : 'websocket'};
 
 request.onOpen = function(response) {
     console.log("Opened conmection")
