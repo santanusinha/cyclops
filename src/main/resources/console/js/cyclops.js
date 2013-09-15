@@ -1,50 +1,89 @@
-var socket = $.atmosphere;
-var request = { url: '/cyclops/notify/test',
-                     contentType : "application/json",
-                     logLevel : 'debug',
-                     transport : 'websocket'};
+var socketManager = {
+    socket: $.atmosphere,
+    currentConnection: null,
+    check: function(event) {
+        var regexp = $("#regex").val()
+        if ( regexp == null || regexp == undefined || regexp.trim().length === 0 ) {
+            return true
+        }
+        reg = regexp.trim()
+        if(reg.test(event.message)) {
+            return true
+        }
+        return false
+    },
+    subscribe: function(topic) {
+        this.unsubscribe()
+        var request = {
+                    url: '/cyclops/notify/' + topic,
+                    contentType : "application/json",
+                    logLevel : 'debug',
+                    transport : 'websocket'
+        };
 
-request.onOpen = function(response) {
-    console.log("Opened conmection")
-}
+        request.onOpen = function(response) {
+            console.log("Opened connection")
+        }
 
-request.onMessage = function(response) {
-    try {
-        //console.log("Received message")
-        //console.log(response.responseBody)
-        var event = JSON.parse(response.responseBody);
-        var message = event.message;
-        $("#tail-text").prepend('<font face="courier"><font color="red">'+event.source+'&gt;</font>&nbsp;'+message+'</font><br>')
-    } catch (e) {
-        //console.log('This does not look like a valid JSON: ', response.responseBody);
-        return;
+        request.onMessage = function(response) {
+            try {
+                console.log(response)
+                var event = JSON.parse(response.responseBody);
+                if(true == socketManager.check(event)) {
+                    $('#data tbody').prepend('<tr><td><font face="courier" color="red">'+event.source
+                                    +'&gt;</font></td><td><font face="courier">'+event.message+'</font></td></tr>');
+                }
+            } catch (e) {
+                console.log(e);
+                return;
+            }
+        }
+
+        request.onError = function(response) {
+            console.log("ERROR");
+            console.log(response);
+        }
+        this.currentConnection = this.socket.subscribe(request)
+    },
+    unsubscribe: function() {
+        if(this.currentConnection != null) {
+            this.socket.unsubscribe()
+            this.currentConnection = null
+        }
     }
 }
 
-request.onError = function(response) {
-    console.log("ERROR");
-    console.log(response);
-}
-
-var subSocket = socket.subscribe(request);
-/*var socket = io.connect('http://localhost:9030/cyclops/notify/');
-  socket.on('test', function (data) {
-    console.log(data);
-    //socket.emit('my other event', { my: 'data' });
-  });*/
-
-$('.selectpicker').selectpicker();
-
-$(document).ready(function(){
-      $.ajax({
+function refreshTopics() {
+    $.ajax({
         type: 'GET',
         url: "/cyclops/info/topics",
         async: true
-      }).done(function(data) {
-          //var items = $('#apps').children().clone();
-          $.each(data, function(key,value) {
-            $('#topics').append("<option>"+value+"</option>");
-          });
-          $('.selectpicker').selectpicker('refresh');
+    }).done(function(data) {
+        $.each(data, function(key,value) {
+            $('#topics').append("<option value=\""+value+"\">"+value+"</option>");
         });
-      });
+        $('.selectpicker').selectpicker('refresh');
+    });
+    var topic = $("#topics").val()
+    if(topic) {
+        console.log('Subscribing to: ' + topic)
+        socketManager.subscribe(topic)
+    }
+}
+
+$('.selectpicker').selectpicker();
+
+//Event handlers
+$(document).ready(function(){
+    refreshTopics();
+});
+
+$("#topics").change(function () {
+    $("#data tbody tr").remove()
+    socketManager.unsubscribe()
+    var topic = $("#topics").val()
+    if(topic) {
+        console.log('Subscribing to: ' + topic)
+        socketManager.subscribe(topic)
+    }
+});
