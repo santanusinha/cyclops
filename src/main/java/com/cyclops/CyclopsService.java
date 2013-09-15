@@ -7,6 +7,7 @@ import com.cyclops.pubsub.TopicPublisher;
 import com.cyclops.resources.EventPublisherResource;
 import com.cyclops.resources.TopicInfoResource;
 import com.cyclops.streaming.AtmosphereUtil;
+import com.cyclops.streaming.NotificationResource;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -14,12 +15,13 @@ import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.assets.AssetsBundle;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
-import com.yammer.dropwizard.config.FilterBuilder;
+import com.yammer.dropwizard.config.HttpConfiguration;
 import org.atmosphere.cpr.AtmosphereServlet;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -44,15 +46,11 @@ public class CyclopsService extends Service<CyclopsConfiguration> {
     }
 
     void initializeAtmosphere(CyclopsConfiguration configuration, Environment environment) {
-        FilterBuilder fconfig = environment.addFilter(CrossOriginFilter.class, "/notify/*");
-        fconfig.setInitParam(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
-        fconfig = environment.addFilter(CrossOriginFilter.class, "/cyclops/notify/*");
-        fconfig.setInitParam(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
         AtmosphereServlet atmosphereServlet = new AtmosphereServlet();
-        atmosphereServlet.framework().addInitParameter("com.sun.jersey.config.property.packages", "com.cyclops.streaming");
-        atmosphereServlet.framework().addInitParameter("org.atmosphere.websocket.messageContentType", "application/json");
-        //atmosphereServlet.framework().addInitParameter("org.atmosphere.useWebSocketAndServlet3", "false");
-        //atmosphereServlet.framework().addInitParameter("org.atmosphere.cpr.broadcastFilterClasses", "com.example.helloworld.filters.BadWordFilter");
+        atmosphereServlet.framework().addInitParameter("com.sun.jersey.config.property.packages",
+                                                            NotificationResource.class.getPackage().getName());
+        atmosphereServlet.framework().addInitParameter("org.atmosphere.websocket.messageContentType",
+                                                            MediaType.APPLICATION_JSON);
         environment.addServlet(atmosphereServlet, "/cyclops/notify/*");
     }
 
@@ -86,5 +84,6 @@ public class CyclopsService extends Service<CyclopsConfiguration> {
         //FilterBuilder fconfig = environment.addFilter(new AtmosphereFilter(), "/cyclops/notify/*");
         //fconfig.setInitParam("com.sun.jersey.config.property.packages", "com.cyclops.streaming");
         initializeAtmosphere(configuration, environment);
+        configuration.getHttpConfiguration().setConnectorType(HttpConfiguration.ConnectorType.NONBLOCKING);
     }
 }

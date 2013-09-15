@@ -4,14 +4,14 @@ http:
   rootPath: /cyclops/*
   port: 9030       # Main service port
   adminPort: 9031  # Admin port for ping, healthcheck, metrics etc
-  gzip:
-    enabled: false
 
   requestLog:
     console:
-      enabled: true
+      enabled: false
+
+logging:
+      level: WARN
 
 cluster:
   name: cyclops
   numMembersPerNode: 1
-
