@@ -1,5 +1,6 @@
 package com.cyclops;
 
+import com.cyclops.common.ClusterListener;
 import com.cyclops.config.ClusterConfig;
 import com.cyclops.config.CyclopsConfiguration;
 import com.cyclops.healthcheck.HealthCheck;
@@ -56,19 +57,24 @@ public class CyclopsService extends Service<CyclopsConfiguration> {
 
     @Override
     public void run(CyclopsConfiguration configuration, Environment environment) throws Exception {
-        ClusterConfig clusterConfig = new ClusterConfig();
+        ClusterConfig clusterConfig = configuration.getCluster();
         ArrayList<HazelcastInstance> hazelcastInstances
                 = new ArrayList<HazelcastInstance>(clusterConfig.getNumMembersPerNode());
         ArrayList<TopicPublisher> publishers = new ArrayList<TopicPublisher>(clusterConfig.getNumMembersPerNode());
         for(int i = 0; i < clusterConfig.getNumMembersPerNode(); i++) {
             Config hzConfig = new Config();
             hzConfig.getGroupConfig().setName(clusterConfig.getName());
-            hzConfig.setInstanceName(String.format("%s-%d", hostName, i));
-            //TopicConfig topicConfig = new TopicConfig();
-            //topicConfig.setStatisticsEnabled(true);
-            //hzConfig.addTopicConfig(topicConfig);
+            hzConfig.setInstanceName(String.format("%s-%d", hostName, System.currentTimeMillis()));
+            if(clusterConfig.isDisableMulticast()) {
+                hzConfig.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+                for(String member: clusterConfig.getMembers()) {
+                    hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().addMember(member);
+                }
+                hzConfig.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
+            }
             HazelcastInstance hazelcast = Hazelcast.newHazelcastInstance(hzConfig);
             hazelcastInstances.add(hazelcast);
+            hazelcast.getCluster().addMembershipListener(new ClusterListener());
             //TODO::ADD N PUBLISHERS PER INSTANCE
             TopicPublisher publisher = new TopicPublisher(hazelcast);
             publishers.add(publisher);

@@ -1,5 +1,6 @@
 package com.cyclops.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yammer.dropwizard.config.Configuration;
 
 import javax.validation.Valid;
@@ -13,12 +14,8 @@ import javax.validation.constraints.NotNull;
 public class CyclopsConfiguration extends Configuration {
     @Valid
     @NotNull
-    private ClusterConfig cluster = new ClusterConfig();
-
-    public CyclopsConfiguration() {
-        super();
-        //this.cluster = new ClusterConfig();
-    }
+    @JsonProperty
+    private ClusterConfig cluster;
 
     public ClusterConfig getCluster() {
         return cluster;

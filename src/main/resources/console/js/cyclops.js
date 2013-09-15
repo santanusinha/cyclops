@@ -1,12 +1,14 @@
 var socketManager = {
     socket: $.atmosphere,
     currentConnection: null,
+    maxRowCount: 1000,
+    currentRowCount: 0,
     check: function(event) {
         var regexp = $("#regex").val()
         if ( regexp == null || regexp == undefined || regexp.trim().length === 0 ) {
             return true
         }
-        reg = regexp.trim()
+        reg = new RegExp(regexp.trim(), "i")
         if(reg.test(event.message)) {
             return true
         }
@@ -30,6 +32,11 @@ var socketManager = {
                 console.log(response)
                 var event = JSON.parse(response.responseBody);
                 if(true == socketManager.check(event)) {
+                    socketManager.currentRowCount = socketManager.currentRowCount + 1
+                    if(socketManager.currentRowCount > socketManager.maxRowCount ) {
+                        socketManager.currentRowCount = socketManager.maxRowCount;
+                        $('#data tbody tr:last').remove()
+                    }
                     $('#data tbody').prepend('<tr><td><font face="courier" color="red">'+event.source
                                     +'&gt;</font></td><td><font face="courier">'+event.message+'</font></td></tr>');
                 }
@@ -43,6 +50,7 @@ var socketManager = {
             console.log("ERROR");
             console.log(response);
         }
+        socketManager.currentRowCount = 0
         this.currentConnection = this.socket.subscribe(request)
     },
     unsubscribe: function() {
@@ -59,16 +67,22 @@ function refreshTopics() {
         url: "/cyclops/info/topics",
         async: true
     }).done(function(data) {
+        var i = 0;
         $.each(data, function(key,value) {
-            $('#topics').append("<option value=\""+value+"\">"+value+"</option>");
+            if(i==0) {
+                $('#topics').append("<option value=\""+value+"\" selected>"+value+"</option>");
+            }
+            else {
+                $('#topics').append("<option value=\""+value+"\">"+value+"</option>");
+            }
         });
         $('.selectpicker').selectpicker('refresh');
+        var topic = $("#topics").val()
+        if(topic) {
+            console.log('Subscribing to: ' + topic)
+            socketManager.subscribe(topic)
+        }
     });
-    var topic = $("#topics").val()
-    if(topic) {
-        console.log('Subscribing to: ' + topic)
-        socketManager.subscribe(topic)
-    }
 }
 
 $('.selectpicker').selectpicker();
