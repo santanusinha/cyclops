@@ -1,5 +1,5 @@
 var socket = $.atmosphere;
-var request = { url: 'http://localhost:9030/cyclops/notify/test',
+var request = { url: '/cyclops/notify/test',
                      contentType : "application/json",
                      logLevel : 'debug',
                      transport : 'websocket'};
@@ -14,7 +14,7 @@ request.onMessage = function(response) {
         //console.log(response.responseBody)
         var event = JSON.parse(response.responseBody);
         var message = event.message;
-        $("#tail-text").prepend(message+"<br>")
+        $("#tail-text").prepend('<font face="courier"><font color="red">'+event.source+'&gt;</font>&nbsp;'+message+'</font><br>')
     } catch (e) {
         //console.log('This does not look like a valid JSON: ', response.responseBody);
         return;
@@ -32,3 +32,19 @@ var subSocket = socket.subscribe(request);
     console.log(data);
     //socket.emit('my other event', { my: 'data' });
   });*/
+
+$('.selectpicker').selectpicker();
+
+$(document).ready(function(){
+      $.ajax({
+        type: 'GET',
+        url: "/cyclops/info/topics",
+        async: true
+      }).done(function(data) {
+          //var items = $('#apps').children().clone();
+          $.each(data, function(key,value) {
+            $('#topics').append("<option>"+value+"</option>");
+          });
+          $('.selectpicker').selectpicker('refresh');
+        });
+      });

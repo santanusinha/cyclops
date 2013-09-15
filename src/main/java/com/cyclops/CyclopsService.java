@@ -2,8 +2,10 @@ package com.cyclops;
 
 import com.cyclops.config.ClusterConfig;
 import com.cyclops.config.CyclopsConfiguration;
+import com.cyclops.healthcheck.HealthCheck;
 import com.cyclops.pubsub.TopicPublisher;
 import com.cyclops.resources.EventPublisherResource;
+import com.cyclops.resources.TopicInfoResource;
 import com.cyclops.streaming.AtmosphereUtil;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
@@ -75,6 +77,8 @@ public class CyclopsService extends Service<CyclopsConfiguration> {
         }
         EventPublisherResource publisherResource = new EventPublisherResource(publishers);
         environment.addResource(publisherResource);
+        environment.addResource(new TopicInfoResource());
+        environment.addHealthCheck(new HealthCheck());
         AtmosphereUtil.init(hazelcastInstances, environment.managedExecutorService("streamer", 10 ,10, 1, TimeUnit.SECONDS));
         //environment.addResource(new NotificationResource());
         //environment.managedExecutorService()

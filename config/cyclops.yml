@@ -9,7 +9,7 @@ http:
 
   requestLog:
     console:
-      enabled: false
+      enabled: true
 
 cluster:
   name: cyclops
