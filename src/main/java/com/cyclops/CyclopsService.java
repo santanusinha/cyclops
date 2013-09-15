@@ -1,6 +1,5 @@
 package com.cyclops;
 
-import com.cyclops.common.ClusterListener;
 import com.cyclops.config.ClusterConfig;
 import com.cyclops.config.CyclopsConfiguration;
 import com.cyclops.healthcheck.HealthCheck;
@@ -74,7 +73,7 @@ public class CyclopsService extends Service<CyclopsConfiguration> {
             }
             HazelcastInstance hazelcast = Hazelcast.newHazelcastInstance(hzConfig);
             hazelcastInstances.add(hazelcast);
-            hazelcast.getCluster().addMembershipListener(new ClusterListener());
+            //hazelcast.getCluster().addMembershipListener(new ClusterListener());
             //TODO::ADD N PUBLISHERS PER INSTANCE
             TopicPublisher publisher = new TopicPublisher(hazelcast);
             publishers.add(publisher);
