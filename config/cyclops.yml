@@ -1,7 +1,6 @@
 # Cyclops port config
 
 http:
-  rootPath: /cyclops/*
   port: 9030       # Main service port
   adminPort: 9031  # Admin port for ping, healthcheck, metrics etc
 
@@ -14,7 +13,6 @@ logging:
 
 cluster:
   name: cyclops
-#  numMembersPerNode: 1
 #  disableMulticast: true
 #  members:
 #    - 172.23.250.146:5701

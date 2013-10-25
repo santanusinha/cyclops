@@ -89,6 +89,7 @@ public class CyclopsService extends Service<CyclopsConfiguration> {
         //FilterBuilder fconfig = environment.addFilter(new AtmosphereFilter(), "/cyclops/notify/*");
         //fconfig.setInitParam("com.sun.jersey.config.property.packages", "com.cyclops.streaming");
         initializeAtmosphere(configuration, environment);
+        configuration.getHttpConfiguration().setRootPath("/cyclops/*");
         configuration.getHttpConfiguration().setConnectorType(HttpConfiguration.ConnectorType.NONBLOCKING);
     }
 }
