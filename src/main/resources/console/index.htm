@@ -6,7 +6,23 @@
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="css/bootstrap-select.css" rel="stylesheet" media="screen">
+      <link rel="stylesheet" href="css/bootstrap-switch.css" media="screen">
       <style>
+          #topics {
+            color: #000;
+          }
+          .bootstrap-select.btn-group .btn .caret {
+            border-top-color: #000;
+            border-bottom-color: #000;
+          }
+          .btn-warning {
+            color: #000 !important;
+          }
+          .btn-warning:focus {
+            color: #000 !important;
+            background-color: rgb(248, 148, 6);
+            text-shadow: rgba(0, 0, 0, 0.247059) 0px 0px 0px;
+          }
           #tail-text {
             background-color: rgb(0,0,0);
             overflow: auto;
@@ -15,9 +31,31 @@
               background-color: rgb(0,0,0);
               box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5);
               -webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5);
-              border-color: rgba(0,0,0,0.5);
-              color: rgb(200,200,200);
+              border-color: rgba(200,200,200,0.5);
+              color: rgb(220,220,220);
               font-weight: bold;
+              -webkit-border-radius: 14px 0 0 14px;
+              -moz-border-radius: 14px 0 0 14px;
+              border-radius: 14px 0 0 14px;
+              padding-right: 14px;
+              padding-left: 14px;
+              margin-bottom: 0;
+              margin-left: 10px;
+          }
+          #host-regex {
+              background-color: rgb(0,0,0);
+              box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5);
+              -webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5);
+              border-color: rgba(200,200,200,0.5);
+              color: rgb(220,220,220);
+              font-weight: bold;
+              -webkit-border-radius: 14px 0 0 14px;
+              -moz-border-radius: 14px 0 0 14px;
+              border-radius: 14px 0 0 14px;
+              padding-right: 14px;
+              padding-left: 14px;
+              margin-bottom: 0;
+              margin-left: 10px;
           }
           #data {
               table-layout: fixed;
@@ -25,39 +63,110 @@
               background-color: rgb(0,0,0);
               font-size: 10pt;
           }
+          #apply-host-regex {
+              -webkit-border-radius: 0 14px 14px 0;
+              -moz-border-radius: 0 14px 14px 0;
+              border-radius: 0 14px 14px 0;
+              position: relative;
+              left: -2px;
+              z-index: 2;
+              border-color: #000;
+          }
+          #apply-host-regex.btn.btn-warning.active {
+              border-bottom-color: rgba(0, 0, 0, 0.247059) !important;
+              border-left-color: rgba(0, 0, 0, 0.0980392) !important;
+              border-right-color: rgba(0, 0, 0, 0.0980392) !important;
+              border-top-color: rgba(0, 0, 0, 0.0980392) !important;
+          }
+          #apply-regex {
+              -webkit-border-radius: 0 14px 14px 0;
+              -moz-border-radius: 0 14px 14px 0;
+              border-radius: 0 14px 14px 0;
+              position: relative;
+              left: -2px;
+              z-index: 2;
+              border-color: #000;
+          }
+          #apply-regex.btn.btn-warning.active {
+            border-bottom-color: rgba(0, 0, 0, 0.247059) !important;
+            border-left-color: rgba(0, 0, 0, 0.0980392) !important;
+            border-right-color: rgba(0, 0, 0, 0.0980392) !important;
+            border-top-color: rgba(0, 0, 0, 0.0980392) !important;
+          }
+          .btn-group: {
+            vertical-align: top;
+          }
+          #actions {
+            vertical-align: top;
+          }
+          #event-histogram {
+            height: 90px;
+          }
+          .make-switch.switch-small.has-switch {
+          margin-right: 20px;
+          }
       </style>
   </head>
   <body style="height: 100%;">
     <div class="container-fluid" style="height: 100%;">
         <div class="row-fluid" style="height: 96px !important;">
-            <div class="span6">
+            <div class="span3">
                 <!--<img src="img/cyclops.png" alt="Cyclops"/>-->
                     <img src="img/cyclops.png" alt="Cyclops" style="margin-top: 10px; margin-left: 10px"/>
             </div>
-            <div class="span6">
+            <div class="span8" style="height: 100%" id="event-histogram">
 
             </div>
-
+            <div class="span1 text-right" style="margin-top: 30px">
+                <div class="make-switch switch-small" id="stream-toggle" data-on="success" data-off="danger" data-text-label=" Stream " style="vertical-align: middle">
+                    <input type="radio" checked>
+                </div>
+                <!--<a id="cluster-info"><img src="img/cluster.png" style="height: 24px"/></a>-->
+            </div>
         </div>
         <div class="row-fluid" style="height: 69px !important;">
             <div class="span3">
                 <h2>Live stream view</h2>
             </div>
-            <div class="span5" style="margin-top: 20px">
-                <select id="topics" name="topics" class="selectpicker" data-style="btn-warning" data-live-search="true" title="Select a topic...">
+            <div class="span3" style="margin-top: 20px">
+                <select id="topics" name="topics" class="selectpicker" data-style="btn-warning" data-live-search="true">
                 </select>
+                <a class="btn-link" id="refresh-topics"><i class="icon-repeat icon-white"></i></a>
+            </div>
+            <div class="span2 text-right" style="margin-top: 20px">
+                <div class="input-append" style="margin-left: -20px">
+                    <input type="text" class="input-medium regrexbox" placeholder="Host to track..." id="host-regex">
+                    <!--<button type="submit" class="btn btn-success"><i class="icon-search "></i></button>-->
+                    <button class="btn btn-success" id="apply-host-regex" data-toggle="button"><i class="icon-filter"></i></button>
+                    <!--<button class="btn btn-warning" id="clear-regex"><i class="icon-remove"></i></button>-->
+                </div>
+            </div>
+            <div class="span3 text-right" style="margin-top: 20px">
+                <div class="input-append">
+                    <input type="text" class="input-xlarge regexbox" placeholder="Regex to track..." id="regex">
+                    <!--<button type="submit" class="btn btn-success"><i class="icon-search "></i></button>-->
+                    <button class="btn btn-danger" id="apply-regex" data-toggle="button"><i class="icon-filter"></i></button>
+                    <!--<button class="btn btn-warning" id="clear-regex"><i class="icon-remove"></i></button>-->
+                </div>
                 <!--<button id="listen" class="btn btn-link">
                     <i class="icon-play-circle icon-white"></i>
                 </button>-->
+                <!--<div class="btn-group" id="actions">
+
+
+                    <button class="btn btn-inverse" id="data-top"><i class="icon-arrow-up icon-white"></i> </button>
+                    <button class="btn btn-inverse" id="data-bottom"><i class="icon-arrow-down icon-white"></i> </button>
+                </div>-->
             </div>
-            <div class="span4" style="margin-top: 20px">
-                <form class="form-search">
+
+            <!--<div class="span4" style="margin-top: 20px">
                     <div class="input-append">
-                        <input type="text" class="search-query input-xlarge" placeholder="Regex to track..." id="regex">
-                        <button type="submit" class="btn btn-success">Track</button>
+                        <input type="text" class="input-xlarge" placeholder="Regex to track..." id="regex">
+                        &lt;!&ndash;<button type="submit" class="btn btn-success"><i class="icon-search "></i></button>&ndash;&gt;
+                        <button class="btn btn-warning" id="apply-regex" data-toggle="button"><i class="icon-filter"></i></button>
+                        &lt;!&ndash;<button class="btn btn-warning" id="clear-regex"><i class="icon-remove"></i></button>&ndash;&gt;
                     </div>
-                </form>
-            </div>
+            </div>-->
         </div>
         <div class="row-fluid fill" style="height: 65%;">
 
@@ -75,8 +184,11 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-select.min.js"></script>
+    <script src="js/bootstrap-switch.min.js"></script>
     <!--<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.atmosphere/2.0.0.RC4/jquery.atmosphere.min.js"></script>-->
     <script src="js/jquery.atmosphere.min.js"></script>
+    <script src="js/flot/jquery.flot.min.js"></script>
+    <script src="js/curvedLines.js"></script>
     <script src="js/cyclops.js"></script>
   </body>
 </html>

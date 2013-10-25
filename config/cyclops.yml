@@ -10,8 +10,12 @@ http:
       enabled: false
 
 logging:
-      level: WARN
+      level: INFO
 
 cluster:
   name: cyclops
-  numMembersPerNode: 1
+#  numMembersPerNode: 1
+#  disableMulticast: true
+#  members:
+#    - 172.23.250.146:5701
+#    - 172.23.250.146:5702
