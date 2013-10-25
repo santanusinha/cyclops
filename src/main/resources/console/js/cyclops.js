@@ -100,7 +100,7 @@ var socketManager = {
             try {
                 console.log(response)
                 var event = JSON.parse(response.responseBody);
-                if(true == socketManager.check(event)) {
+                if(true == socketManager.checkHost(event) && true == socketManager.check(event)) {
                     socketManager.currentRowCount = socketManager.currentRowCount + 1
                     if(socketManager.currentRowCount > socketManager.maxRowCount ) {
                         socketManager.currentRowCount = socketManager.maxRowCount;
