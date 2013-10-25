@@ -35,7 +35,7 @@ public class TopicListener implements MessageListener<Event> {
                 try {
                     Future<Object> finish = topicBroadcaster.broadcast(message.getMessageObject());
                     finish.get();
-                    logger.info("Message sent: " + message.getMessageObject().getMessage());
+                    logger.debug("Message sent: " + message.getMessageObject().getMessage());
                 } catch (InterruptedException e) {
                     logger.error("Broadcast interrupted: ", e);
                 } catch (ExecutionException e) {

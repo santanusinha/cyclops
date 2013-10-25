@@ -47,7 +47,7 @@ public class WebSocketListener extends WebSocketEventListenerAdapter {
     @Override
     public void onBroadcast(AtmosphereResourceEvent event) {
         super.onBroadcast(event);
-        logger.info("BROADCASTING**** " + ((Event)event.getMessage()).getMessage());
+        logger.debug("BROADCASTING**** " + ((Event)event.getMessage()).getMessage());
     }
 
     @Override
