@@ -1,36 +1,61 @@
 #!/usr/bin/env python
-#!/usr/bin/python
 import websocket
-import thread
 import time
 import sys
 import json
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-s", "--server", dest="server",
+                  help="Cyclops server hostname.", metavar="HOST")
+parser.add_option("-p", "--port", dest="port", type="int", default=9030,
+                  help="Cyclops server port.", metavar="PORT")
+parser.add_option("-t", "--topic", dest="topic",
+                  help="Topic to listen to.", metavar="TOPIC")
+parser.add_option("-v", "--verbose",
+                  action="store_true", dest="verbose", default=False,
+                  help="Enable debugging")
 
 def on_message(ws, message):
     try:
         event = json.loads(message)
-        print event['message']
+        print event['source'] + ":" + event['message']
     except Exception:
         print message
 
 def on_error(ws, error):
-	print error
+    print error
 
 def on_close(ws):
-	#print "### closed ###"
-	pass
+    #print "### closed ###"
+    pass
 
 def on_open(ws):
-	#print "opened connection"
-	pass
+    #print "opened connection"
+    pass
 
 if __name__ == "__main__":
-	topic = sys.argv[2]
-	websocket.enableTrace(True)
-	ws = websocket.WebSocketApp("ws://" + sys.argv[1] + ":9030/cyclops/notify/"+topic,
-								on_message = on_message,
-								on_error = on_error,
-								on_close = on_close)
-	ws.on_open = on_open
+    (options, args) = parser.parse_args()
+    websocket.enableTrace(options.verbose)
+    if None == options.server:
+        print "Error: Hostname not provided"
+        parser.print_help()
+        exit(-1)
+    if None == options.topic:
+        print "Error: Topic not provided"
+        parser.print_help()
+        exit(-1)
+    host = options.server
+    topic = options.topic
+    port = options.port
+    try:
+        ws = websocket.WebSocketApp(
+                                "ws://" + host + ":" + str(port) + "/cyclops/notify/"+topic,
+                                on_message = on_message,
+                                on_error = on_error,
+                                on_close = on_close)
+        ws.on_open = on_open
 
-	ws.run_forever()
+        ws.run_forever()
+    except Exception:
+        pass
