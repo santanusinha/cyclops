@@ -39,8 +39,9 @@ var graphDataManager = {
         return this.currStart;
     },
     listData: function() {
+        var tempData = [this.maxData]
         var results = [this.maxData]
-        var startIndex = this.start()
+        var startIndex = (this.currentIndex + 1) % this.maxData
         for(var i = 0; i < this.maxData; i++) {
             results[i] = [i, this.data[startIndex]]
             startIndex = (startIndex + 1) % this.maxData
@@ -98,7 +99,7 @@ var socketManager = {
 
         request.onMessage = function(response) {
             try {
-                console.log(response)
+                //console.log(response)
                 var event = JSON.parse(response.responseBody);
                 if(true == socketManager.checkHost(event) && true == socketManager.check(event)) {
                     socketManager.currentRowCount = socketManager.currentRowCount + 1
